@@ -3,91 +3,542 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulador de Crédito — 1x a 21x</title>
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#0d2140">
+<meta name="description" content="Simule o parcelamento da sua venda de 1x a 21x e veja a parcela, o total cobrado e o valor líquido recebido.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="UBBPay">
+<meta property="og:title" content="Simulador de Crédito · UBBPay">
+<meta property="og:description" content="Simule o parcelamento da sua venda de 1x a 21x e veja a parcela, o total cobrado e o valor líquido recebido.">
+<title>Simulador de Crédito · UBBPay</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <style>
-  :root{--bg:#0f172a;--card:#1e293b;--accent:#22c55e;--accent-2:#3b82f6;--text:#e2e8f0;--muted:#94a3b8;--danger:#ef4444;}
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
-  .container{width:100%;max-width:520px;background:var(--card);border-radius:16px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.45);}
-  h1{font-size:1.35rem;margin:0 0 4px;text-align:center;}
-  .subtitle{text-align:center;color:var(--muted);font-size:.85rem;margin-bottom:22px;}
-  label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:6px;margin-top:14px;}
-  input,select{width:100%;padding:12px 14px;font-size:1rem;border-radius:10px;border:1px solid #334155;background:#0f172a;color:var(--text);outline:none;transition:border .15s;}
-  input:focus,select:focus{border-color:var(--accent-2);}
-  button{width:100%;margin-top:22px;padding:14px;font-size:1rem;font-weight:600;border:none;border-radius:10px;background:linear-gradient(135deg,var(--accent),#16a34a);color:#052e16;cursor:pointer;transition:transform .1s,filter .15s;}
-  button:hover{filter:brightness(1.08);}
-  button:active{transform:scale(.98);}
-  .resultado{margin-top:24px;border-top:1px solid #334155;padding-top:18px;display:none;}
-  .resultado.show{display:block;}
-  .linha{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;font-size:.95rem;}
-  .linha span:first-child{color:var(--muted);}
-  .linha strong{font-variant-numeric:tabular-nums;text-align:right;}
-  .destaque{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.35);border-radius:10px;padding:12px 14px;margin-top:8px;}
-  .destaque strong{color:var(--accent);font-size:1.15rem;}
-  .erro{color:var(--danger);font-size:.85rem;margin-top:10px;display:none;}
-  .erro.show{display:block;}
+  @font-face{
+    font-family:'Plus Jakarta Sans';
+    font-style:normal;
+    font-weight:400 800;
+    font-display:swap;
+    src:url('fonts/plus-jakarta-sans-latin.woff2') format('woff2');
+  }
+  :root{
+    --navy:#0d2140;
+    --blue:#2464c5;
+    --soft:#eaf2ff;
+    --ink:#182941;
+    --muted:#5f7189;
+    --line:#dbe5f1;
+    --bg:#f5f8fc;
+    --red:#e8453c;
+    --cyan:#2ec9d8;
+    --amber:#efab3f;
+    --danger:#b4342c;
+    --shadow:0 30px 60px -48px rgba(13,33,64,.5);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Plus Jakarta Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  main{flex:1}
+  [hidden]{display:none !important}
+  .wrap{width:100%;max-width:1120px;margin:0 auto;padding:0 24px}
+  @media (max-width:640px){.wrap{padding:0 16px}}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:6px}
+
+  /* ---------- marca ---------- */
+  .logo{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--navy)}
+  .logo-word{font-size:17px;font-weight:800;letter-spacing:.22em;line-height:1}
+  .dots{display:flex;gap:6px}
+  .dots i{display:block;border-radius:50%}
+  .d1{background:var(--red)}
+  .d2{background:var(--cyan)}
+  .d3{background:var(--amber)}
+  .logo-dots i{width:10px;height:10px}
+
+  /* ---------- header ---------- */
+  .site-header{
+    position:sticky;top:0;z-index:40;
+    border-bottom:1px solid rgba(24,41,65,.1);
+    background:rgba(255,255,255,.9);
+    -webkit-backdrop-filter:blur(8px);
+    backdrop-filter:blur(8px);
+  }
+  .header-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;height:56px}
+  .site-header .logo{padding:12px 0}
+  .header-tag{
+    font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);white-space:nowrap;
+  }
+  @media (max-width:520px){.header-tag{display:none}}
+
+  /* ---------- hero ---------- */
+  .hero{padding:56px 0 30px}
+  .eyebrow{
+    display:flex;align-items:center;gap:16px;margin:0;
+    font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--muted);
+  }
+  .eyebrow-rule{display:block;width:64px;height:1px;background:var(--red)}
+  h1{
+    margin:16px 0 0;max-width:22ch;
+    font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);
+    line-height:1.05;letter-spacing:-.03em;font-weight:800;color:var(--ink);
+    text-wrap:balance;
+  }
+  .lede{margin:16px 0 0;max-width:54ch;font-size:16px;line-height:1.7;color:rgba(24,41,65,.72)}
+
+  /* ---------- grid ---------- */
+  .sim-grid{display:grid;gap:24px;align-items:start;padding-bottom:56px}
+  @media (min-width:900px){
+    .sim-grid{grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:28px}
+    .painel{position:sticky;top:84px}
+  }
+  .card{
+    background:#fff;border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);
+  }
+  .painel{padding:24px}
+  @media (min-width:640px){.painel{padding:28px}}
+
+  /* ---------- formulário ---------- */
+  .field-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .field-head label,.field legend{
+    display:block;margin:0;padding:0;
+    font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);
+  }
+  .restore{
+    display:inline-flex;align-items:center;gap:6px;
+    border:0;background:none;padding:8px 0;
+    font:inherit;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;
+    transition:color .15s ease;
+  }
+  .restore:hover{color:var(--blue)}
+  .restore svg{width:14px;height:14px}
+
+  .money{display:flex;align-items:center;gap:8px;margin-top:10px;padding-bottom:6px;border-bottom:2px solid var(--line);transition:border-color .15s ease}
+  .money:focus-within{border-color:var(--blue)}
+  .money-prefix{font-size:22px;font-weight:800;color:rgba(24,41,65,.55)}
+  .money input{
+    flex:1;min-width:0;width:100%;
+    border:0;background:transparent;outline:none;padding:0;
+    font-family:inherit;font-size:clamp(1.65rem,6vw,2.15rem);font-weight:800;
+    letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums;
+  }
+  .money input::placeholder{color:rgba(24,41,65,.3)}
+  .hint{margin:8px 0 0;font-size:12px;line-height:1.5;color:var(--muted)}
+  .field{margin:24px 0 0;padding:0;border:0}
+  .field legend{margin-bottom:10px}
+
+  .plans{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+  .plans input,.seg input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+  .plans label{
+    display:flex;align-items:center;justify-content:center;min-height:44px;
+    border:1px solid var(--line);border-radius:9px;background:#fff;
+    font-size:12px;font-weight:700;color:var(--ink);cursor:pointer;
+    transition:border-color .12s ease,background-color .12s ease,color .12s ease;
+  }
+  .plans label:hover{border-color:rgba(36,100,197,.45);color:var(--blue)}
+  .plans input:checked + label{
+    border-color:var(--blue);background:var(--blue);color:#fff;
+    box-shadow:0 10px 20px -14px rgba(36,100,197,.9);
+  }
+  .plans input:focus-visible + label{outline:2px solid var(--blue);outline-offset:2px}
+
+  .seg{position:relative;display:flex;gap:4px;padding:4px;background:var(--soft);border-radius:999px}
+  .seg label{
+    flex:1;display:flex;align-items:center;justify-content:center;min-height:42px;padding:0 12px;
+    border-radius:999px;font-size:12px;font-weight:700;color:rgba(24,41,65,.62);cursor:pointer;
+    transition:background-color .12s ease,color .12s ease;
+  }
+  .seg label:hover{color:var(--ink)}
+  .seg input:checked + label{
+    background:var(--blue);color:#fff;box-shadow:0 12px 22px -16px rgba(13,33,64,.8);
+  }
+  .seg input:focus-visible + label{outline:2px solid var(--ink);outline-offset:2px}
+
+  .btn-primary{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;min-height:48px;margin-top:26px;padding:0 20px;
+    border:0;border-radius:999px;background:var(--navy);color:#fff;
+    font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;
+    transition:background-color .15s ease,transform .12s ease;
+  }
+  .btn-primary:hover{background:var(--blue)}
+  .btn-primary:active{transform:scale(.99)}
+  .btn-primary svg{width:16px;height:16px}
+
+  .error{display:none;margin:10px 0 0;font-size:13px;font-weight:600;line-height:1.5;color:var(--danger)}
+  .error.show{display:block}
+
+  /* ---------- resultado ---------- */
+  .resultado{display:flex;flex-direction:column;padding:24px;scroll-margin-top:72px}
+  @media (min-width:640px){.resultado{padding:28px}}
+  .empty{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    min-height:340px;padding:48px 12px;text-align:center;
+  }
+  .empty-dots{margin-bottom:18px}
+  .empty-dots i{width:9px;height:9px;opacity:.95}
+  .empty-title{margin:0;font-size:16px;font-weight:800;letter-spacing:-.01em;color:var(--ink)}
+  .empty-text{max-width:34ch;margin:6px 0 0;font-size:13px;line-height:1.6;color:var(--muted)}
+
+  .result-body{animation:rise .22s ease-out both}
+  @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .result-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .result-eyebrow{margin:0;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .result-head h2{margin:4px 0 0;font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--ink)}
+  @media (max-width:480px){
+    .result-head h2{font-size:18px}
+    .badge{font-size:10px;padding:4px 9px}
+  }
+  .badge{
+    flex-shrink:0;padding:5px 10px;border-radius:999px;background:var(--soft);
+    font-size:11px;font-weight:700;color:var(--blue);white-space:nowrap;
+  }
+
+  .liquido{
+    position:relative;overflow:hidden;margin-top:18px;padding:22px;
+    border-radius:18px;color:#fff;
+    background:linear-gradient(135deg,var(--navy) 0%,#12356e 55%,var(--blue) 100%);
+  }
+  .liquido::before{
+    content:"";position:absolute;top:-80px;right:-60px;width:220px;height:220px;
+    border-radius:50%;background:rgba(56,189,248,.2);filter:blur(60px);
+  }
+  .liquido > *{position:relative}
+  .liquido-dots{position:absolute;top:18px;right:18px}
+  .liquido-dots i{width:7px;height:7px}
+  .liquido-label{margin:0;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(186,230,253,.88)}
+  .liquido-value{
+    margin:6px 0 0;font-size:clamp(2rem,1.5rem + 1.4vw,2.6rem);font-weight:800;
+    line-height:1.05;letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+  }
+  .liquido-hint{margin:8px 0 0;font-size:12px;color:rgba(224,242,254,.78)}
+
+  .detalhes{margin:18px 0 0;border-top:1px solid rgba(24,41,65,.08)}
+  .detalhes .linha{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid rgba(24,41,65,.06)}
+  .detalhes .linha:last-child{border-bottom:0}
+  .detalhes dt{font-size:13px;color:rgba(24,41,65,.62)}
+  .detalhes dd{
+    margin:0;font-size:15px;font-weight:700;line-height:1.4;color:var(--ink);
+    text-align:right;font-variant-numeric:tabular-nums;
+  }
+  #r-parcela{color:#047857}
+  #r-taxa{color:var(--blue)}
+  .fine{margin:16px 0 0;font-size:11.5px;line-height:1.55;color:var(--muted)}
+
+  /* ---------- footer ---------- */
+  .site-footer{margin-top:auto;background:var(--navy);color:#e0f2fe}
+  .footer-bar{height:4px;background:linear-gradient(90deg,var(--red),var(--cyan),var(--amber));opacity:.85}
+  .footer-inner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;padding-top:32px;padding-bottom:32px}
+  .footer-brand{display:flex;align-items:center;gap:16px}
+  .logo-white{color:#fff}
+  .footer-tagline{font-size:13px;color:rgba(224,242,254,.72)}
+  .footer-note{margin:0;font-size:12px;color:rgba(224,242,254,.6)}
+  @media (max-width:700px){.footer-tagline{display:none}}
+
+  @media (prefers-reduced-motion:reduce){
+    .result-body{animation:none}
+    *{transition-duration:.01ms !important}
+  }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>Simulador de Crédito</h1>
-  <p class="subtitle">Parcelamento de 1x a 21x</p>
 
-  <label for="valor">Valor da venda (R$)</label>
-  <input type="number" id="valor" value="1000" min="0" step="0.01" inputmode="decimal">
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="logo" href="./" aria-label="UBBPay — início">
+      <span class="dots logo-dots" aria-hidden="true"><i class="d1"></i><i class="d2"></i><i class="d3"></i></span>
+      <span class="logo-word">UBBPAY</span>
+    </a>
+    <span class="header-tag">Taxas de 1x a 21x</span>
+  </div>
+</header>
 
-  <label for="parcelas">Número de parcelas</label>
-  <select id="parcelas"></select>
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="eyebrow-rule" aria-hidden="true"></span>Simulador · Crédito</p>
+      <h1>Simule o parcelamento da sua venda</h1>
+      <p class="lede">De 1x a 21x, com a taxa de cada plano aplicada sobre o valor da venda. Escolha quem paga a taxa e veja o que entra no caixa.</p>
+    </div>
+  </section>
 
-  <label for="modo">Modo de operação</label>
-  <select id="modo">
-    <option value="A">Loja absorve a taxa (cliente paga o valor de etiqueta)</option>
-    <option value="B">Cliente paga os juros (você recebe o valor cheio)</option>
-  </select>
+  <div class="wrap">
+    <div class="sim-grid">
+      <form class="card painel" id="form" novalidate>
+        <div class="field-head">
+          <label for="valor" id="label-valor">Valor da venda</label>
+          <button type="button" class="restore" id="restaurar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+            Restaurar
+          </button>
+        </div>
+        <div class="money">
+          <span class="money-prefix" aria-hidden="true">R$</span>
+          <input id="valor" name="valor" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="0,00" value="1.000,00" aria-describedby="valor-hint">
+        </div>
+        <p class="hint" id="valor-hint">A taxa é descontada do valor da venda.</p>
 
-  <button onclick="calcular()">Simular</button>
-  <div class="erro" id="erro"></div>
+        <fieldset class="field">
+          <legend>Número de parcelas</legend>
+          <div class="plans" id="plans"></div>
+        </fieldset>
 
-  <div class="resultado" id="resultado">
-    <div class="linha"><span>Valor da parcela</span><strong id="r-parcela">—</strong></div>
-    <div class="linha"><span>Total cobrado do cliente</span><strong id="r-total">—</strong></div>
-    <div class="destaque">
-      <div class="linha" style="padding:0;">
-        <span>Valor líquido recebido</span>
-        <strong id="r-liquido">—</strong>
-      </div>
+        <fieldset class="field">
+          <legend>Modo de operação</legend>
+          <div class="seg">
+            <input type="radio" name="modo" id="modo-a" value="A" checked>
+            <label for="modo-a">Loja absorve</label>
+            <input type="radio" name="modo" id="modo-b" value="B">
+            <label for="modo-b">Cliente paga</label>
+          </div>
+          <p class="hint" id="modo-hint">O cliente paga o valor de etiqueta; a taxa sai do seu recebimento.</p>
+        </fieldset>
+
+        <button type="submit" class="btn-primary">
+          Simular
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+        <p class="error" id="erro" role="alert"></p>
+      </form>
+
+      <section class="card resultado" id="resultado" aria-live="polite" aria-label="Resultado da simulação">
+        <div class="empty" id="empty-state">
+          <span class="dots empty-dots" aria-hidden="true"><i class="d1"></i><i class="d2"></i><i class="d3"></i></span>
+          <p class="empty-title">Aguardando simulação</p>
+          <p class="empty-text">Escolha o valor e as parcelas para ver a parcela, o total cobrado e o valor líquido.</p>
+        </div>
+
+        <div class="result-body" id="result-body" hidden>
+          <div class="result-head">
+            <div>
+              <p class="result-eyebrow">Resultado</p>
+              <h2 id="r-titulo">Parcelamento em 12x</h2>
+            </div>
+            <span class="badge" id="r-badge">Loja absorve</span>
+          </div>
+
+          <div class="liquido">
+            <span class="dots liquido-dots" aria-hidden="true"><i class="d1"></i><i class="d2"></i><i class="d3"></i></span>
+            <p class="liquido-label">Valor líquido recebido</p>
+            <p class="liquido-value" id="r-liquido">—</p>
+            <p class="liquido-hint" id="r-liquido-hint">—</p>
+          </div>
+
+          <dl class="detalhes">
+            <div class="linha"><dt>Valor da parcela</dt><dd id="r-parcela">—</dd></div>
+            <div class="linha"><dt>Total cobrado do cliente</dt><dd id="r-total">—</dd></div>
+            <div class="linha"><dt>Taxa aplicada</dt><dd id="r-taxa">—</dd></div>
+          </dl>
+
+          <p class="fine">Simulação estimada. Taxas sujeitas às condições comerciais vigentes.</p>
+        </div>
+      </section>
     </div>
   </div>
-</div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-bar" aria-hidden="true"></div>
+  <div class="wrap footer-inner">
+    <div class="footer-brand">
+      <span class="logo logo-white">
+        <span class="dots logo-dots" aria-hidden="true"><i class="d1"></i><i class="d2"></i><i class="d3"></i></span>
+        <span class="logo-word">UBBPAY</span>
+      </span>
+      <span class="footer-tagline">Soluções em pagamentos para o seu negócio.</span>
+    </div>
+    <p class="footer-note">© <span id="ano">2026</span> UBBPay · Simulador de crédito</p>
+  </div>
+</footer>
 
 <script>
-var TAXAS={1:0.0489,2:0.0645,3:0.0739,4:0.0791,5:0.0872,6:0.0950,7:0.1091,8:0.1183,9:0.1263,10:0.1328,11:0.1395,12:0.1463,13:0.1556,14:0.1618,15:0.1687,16:0.1754,17:0.1821,18:0.1889,19:0.1974,20:0.2035,21:0.2103};
-function fmt(v){return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
-var selParcelas=document.getElementById('parcelas');
-for(var i=1;i<=21;i++){var opt=document.createElement('option');opt.value=i;opt.textContent=i+'x';selParcelas.appendChild(opt);}
-selParcelas.value=12;
-function calcular(){
-  var erroEl=document.getElementById('erro');var resEl=document.getElementById('resultado');
-  erroEl.classList.remove('show');resEl.classList.remove('show');
-  var valor=parseFloat(document.getElementById('valor').value);
-  var parcelas=parseInt(selParcelas.value,10);
-  var modo=document.getElementById('modo').value;
-  if(isNaN(valor)||valor<=0){erroEl.textContent='Informe um valor de venda válido (maior que zero).';erroEl.classList.add('show');return;}
-  var taxa=TAXAS[parcelas];var totalCobrado,liquido;
-  if(modo==='A'){totalCobrado=valor;liquido=valor*(1-taxa);}
-  else{totalCobrado=valor/(1-taxa);liquido=valor;}
-  var parcelaBase=Math.floor((totalCobrado/parcelas)*100)/100;
-  var ultimaParcela=Math.round((totalCobrado-parcelaBase*(parcelas-1))*100)/100;
-  var parcelaTexto;
-  if(parcelas===1){parcelaTexto=fmt(totalCobrado);}
-  else if(Math.abs(parcelaBase-ultimaParcela)<0.005){parcelaTexto=parcelas+'x de '+fmt(parcelaBase);}
-  else{parcelaTexto=(parcelas-1)+'x de '+fmt(parcelaBase)+' + 1x de '+fmt(ultimaParcela);}
-  document.getElementById('r-parcela').textContent=parcelaTexto;
-  document.getElementById('r-total').textContent=fmt(totalCobrado);
-  document.getElementById('r-liquido').textContent=fmt(liquido);
-  resEl.classList.add('show');
-}
-document.getElementById('valor').addEventListener('keydown',function(e){if(e.key==='Enter')calcular();});
+(function () {
+  'use strict';
+
+  var TAXAS = {1:0.0489,2:0.0645,3:0.0739,4:0.0791,5:0.0872,6:0.0950,7:0.1091,8:0.1183,9:0.1263,10:0.1328,11:0.1395,12:0.1463,13:0.1556,14:0.1618,15:0.1687,16:0.1754,17:0.1821,18:0.1889,19:0.1974,20:0.2035,21:0.2103};
+
+  var money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+  var plain = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  var form = document.getElementById('form');
+  var valorInput = document.getElementById('valor');
+  var plansEl = document.getElementById('plans');
+  var erroEl = document.getElementById('erro');
+  var emptyEl = document.getElementById('empty-state');
+  var resultBody = document.getElementById('result-body');
+  var labelValor = document.getElementById('label-valor');
+  var valorHint = document.getElementById('valor-hint');
+  var modoHint = document.getElementById('modo-hint');
+
+  var out = {
+    titulo: document.getElementById('r-titulo'),
+    badge: document.getElementById('r-badge'),
+    liquido: document.getElementById('r-liquido'),
+    liquidoHint: document.getElementById('r-liquido-hint'),
+    parcela: document.getElementById('r-parcela'),
+    total: document.getElementById('r-total'),
+    taxa: document.getElementById('r-taxa')
+  };
+
+  function fmt(v) { return money.format(v); }
+  function fmtPercent(decimal) { return (decimal * 100).toFixed(2).replace('.', ',') + '%'; }
+  function digitsOf(v) { return String(v || '').replace(/\D/g, '').slice(0, 11); }
+  function amountOf(v) { var d = digitsOf(v); return d ? parseInt(d, 10) / 100 : 0; }
+
+  function maskValue() {
+    var d = digitsOf(valorInput.value);
+    valorInput.value = d ? plain.format(parseInt(d, 10) / 100) : '';
+  }
+
+  function selected(name) {
+    return form.querySelector('input[name="' + name + '"]:checked');
+  }
+
+  function buildPlans() {
+    for (var i = 1; i <= 21; i++) {
+      var input = document.createElement('input');
+      input.type = 'radio';
+      input.name = 'parcelas';
+      input.id = 'plano-' + i;
+      input.value = String(i);
+      if (i === 12) input.checked = true;
+
+      var label = document.createElement('label');
+      label.htmlFor = input.id;
+      label.textContent = i + 'x';
+
+      plansEl.appendChild(input);
+      plansEl.appendChild(label);
+    }
+  }
+
+  function updateModo() {
+    var modo = selected('modo').value;
+
+    if (modo === 'A') {
+      labelValor.textContent = 'Valor da venda';
+      valorHint.textContent = 'A taxa é descontada do valor da venda.';
+      modoHint.textContent = 'O cliente paga o valor de etiqueta; a taxa sai do seu recebimento.';
+    } else {
+      labelValor.textContent = 'Valor que você quer receber';
+      valorHint.textContent = 'Informe o líquido desejado; a taxa é somada ao total.';
+      modoHint.textContent = 'Você recebe o valor cheio; a taxa é somada ao total cobrado do cliente.';
+    }
+  }
+
+  function hideResult() {
+    resultBody.hidden = true;
+    emptyEl.hidden = false;
+  }
+
+  function calcular() {
+    var valor = amountOf(valorInput.value);
+    var parcelas = parseInt(selected('parcelas').value, 10);
+    var modo = selected('modo').value;
+
+    if (!valor || valor <= 0) {
+      erroEl.textContent = 'Informe um valor de venda válido (maior que zero).';
+      erroEl.classList.add('show');
+      hideResult();
+      return false;
+    }
+
+    erroEl.textContent = '';
+    erroEl.classList.remove('show');
+
+    var taxa = TAXAS[parcelas];
+    var totalCobrado, liquido;
+
+    if (modo === 'A') {
+      totalCobrado = valor;
+      liquido = valor * (1 - taxa);
+    } else {
+      totalCobrado = valor / (1 - taxa);
+      liquido = valor;
+    }
+
+    var parcelaTexto;
+
+    if (parcelas === 1) {
+      parcelaTexto = fmt(totalCobrado);
+    } else {
+      var valorParcela = Math.round((totalCobrado / parcelas) * 100) / 100;
+      parcelaTexto = parcelas + 'x de ' + fmt(valorParcela);
+    }
+
+    out.titulo.textContent = parcelas === 1 ? 'Pagamento à vista' : 'Parcelamento em ' + parcelas + 'x';
+    out.badge.textContent = modo === 'A' ? 'Loja absorve' : 'Cliente paga';
+    out.liquido.textContent = fmt(liquido);
+    out.liquidoHint.textContent = (parcelas === 1 ? 'À vista' : parcelas + 'x') + ' · ' + (modo === 'A' ? 'loja absorve a taxa' : 'cliente paga a taxa');
+    out.parcela.textContent = parcelaTexto;
+    out.total.textContent = fmt(totalCobrado);
+    out.taxa.textContent = fmtPercent(taxa);
+
+    emptyEl.hidden = true;
+    resultBody.hidden = false;
+    return true;
+  }
+
+  function scrollToResult() {
+    if (!window.matchMedia('(max-width: 899px)').matches || resultBody.hidden) return;
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.getElementById('resultado').scrollIntoView({
+      behavior: reduce ? 'auto' : 'smooth',
+      block: 'start'
+    });
+  }
+
+  valorInput.addEventListener('input', function () {
+    maskValue();
+
+    if (amountOf(valorInput.value) <= 0) {
+      hideResult();
+      erroEl.textContent = '';
+      erroEl.classList.remove('show');
+      return;
+    }
+
+    if (!resultBody.hidden) calcular();
+  });
+
+  form.addEventListener('change', function (event) {
+    if (event.target.name === 'modo') updateModo();
+    if (!resultBody.hidden) calcular();
+  });
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    maskValue();
+
+    if (calcular()) scrollToResult();
+  });
+
+  document.getElementById('restaurar').addEventListener('click', function () {
+    valorInput.value = '1.000,00';
+    document.getElementById('plano-12').checked = true;
+    document.getElementById('modo-a').checked = true;
+    updateModo();
+    erroEl.textContent = '';
+    erroEl.classList.remove('show');
+    hideResult();
+  });
+
+  buildPlans();
+  maskValue();
+  updateModo();
+  document.getElementById('ano').textContent = new Date().getFullYear();
+})();
 </script>
 </body>
 </html>

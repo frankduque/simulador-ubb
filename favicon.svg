@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="UBBPay">
+    <rect width="120" height="120" rx="26" fill="#0b2545" />
+    <circle cx="34" cy="60" r="15" fill="#e8453c" />
+    <circle cx="60" cy="60" r="15" fill="#2ec9d8" />
+    <circle cx="86" cy="60" r="15" fill="#efab3f" />
+</svg>
