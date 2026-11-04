@@ -232,7 +232,6 @@
     text-align:right;font-variant-numeric:tabular-nums;
   }
   #r-parcela{color:#047857}
-  #r-taxa{color:var(--blue)}
   .fine{margin:16px 0 0;font-size:11.5px;line-height:1.55;color:var(--muted)}
 
   /* ---------- footer ---------- */
@@ -337,7 +336,6 @@
           <dl class="detalhes">
             <div class="linha"><dt>Valor da parcela</dt><dd id="r-parcela">—</dd></div>
             <div class="linha"><dt>Total cobrado do cliente</dt><dd id="r-total">—</dd></div>
-            <div class="linha"><dt>Taxa aplicada</dt><dd id="r-taxa">—</dd></div>
           </dl>
 
           <p class="fine">Simulação estimada. Taxas sujeitas às condições comerciais vigentes.</p>
@@ -386,12 +384,10 @@
     liquido: document.getElementById('r-liquido'),
     liquidoHint: document.getElementById('r-liquido-hint'),
     parcela: document.getElementById('r-parcela'),
-    total: document.getElementById('r-total'),
-    taxa: document.getElementById('r-taxa')
+    total: document.getElementById('r-total')
   };
 
   function fmt(v) { return money.format(v); }
-  function fmtPercent(decimal) { return (decimal * 100).toFixed(2).replace('.', ',') + '%'; }
   function digitsOf(v) { return String(v || '').replace(/\D/g, '').slice(0, 11); }
   function amountOf(v) { var d = digitsOf(v); return d ? parseInt(d, 10) / 100 : 0; }
 
@@ -482,7 +478,6 @@
     out.liquidoHint.textContent = (parcelas === 1 ? 'À vista' : parcelas + 'x') + ' · ' + (modo === 'A' ? 'loja absorve a taxa' : 'cliente paga a taxa');
     out.parcela.textContent = parcelaTexto;
     out.total.textContent = fmt(totalCobrado);
-    out.taxa.textContent = fmtPercent(taxa);
 
     emptyEl.hidden = true;
     resultBody.hidden = false;
